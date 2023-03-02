@@ -5,7 +5,7 @@
         static void Main(string[] args)
         {
             // Create an instance of the Menu class with the options "Sign In", "Create New User", "Exit"
-            Menusystem mainMenu = new Menusystem(new string[] { "Register hours", "New user", "New project", "Exit" });
+            Menusystem mainMenu = new Menusystem(new string[] { "Register hours", "New user", "New project", "Change users", "Change project", "Exit" });
             // Print the menu to the console
             mainMenu.PrintMenu();
 
@@ -31,8 +31,17 @@
                     case 2:
                         Methods.CreateProject();
                         break;
-                    // If the selected index is 2 (Exit)
                     case 3:
+                        Methods.ChangeUser();
+                        break;
+                    case 4:
+                        Methods.ChangeProject();
+                        break;
+                    case 5:
+                        Menusystem change = new Menusystem(new string[] { "Change name/project", "Change hours", "Back" });
+                        break;
+                    // If the selected index is 2 (Exit)
+                    case 6:
                         // Set the showMenu variable to false to exit the loop
                         showMenu = false;
                         break;

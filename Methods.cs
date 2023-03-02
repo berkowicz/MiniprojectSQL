@@ -2,39 +2,47 @@
 {
     internal class Methods
     {
+        //Register hours to a specific user and project
+        //Takes in personname and projectname and adds them together with number of hours
+        //to add a new project_person with hour in DB
         internal static void RegisterHours()
         {
             //Register hours to a specific user and project
-            //Enter name and project then enter hours
             Console.Clear();
             Console.CursorVisible = true;
             List<PersonModel> persons = DataAccess.LoadPerson();
             List<ProjectModel> projects = DataAccess.LoadProject();
+
             Console.WriteLine("Register Hours!");
             Console.Write("\nInput your name: ");
-            string? name = Console.ReadLine();
+            string? personName = Console.ReadLine();
+            //Loops throught every person
             for (int i = 0; i < persons.Count; i++)
             {
-                if (name.Equals(persons[i].person_name))
+                //Looking for match in input and persons in list
+                if (personName.Equals(persons[i].person_name))
                 {
                     Console.Write("Input project: ");
-                    string? project = Console.ReadLine();
+                    string? projectName = Console.ReadLine();
+                    //Loops throught every project
                     for (int j = 0; j < projects.Count; j++)
                     {
-                        if (project.Equals(projects[j].project_name))
+                        //Looking for match in input and peroject in list
+                        if (projectName.Equals(projects[j].project_name))
                         {
                             Console.WriteLine("No input equals 8 hours");
                             Console.Write("Input hours: ");
                             string hourInput = Console.ReadLine();
+                            //Validates input
                             if (hourInput.Equals("0"))
                             {
                                 Console.WriteLine("Cant report 0 hours");
                                 i = persons.Count; j = projects.Count;
                             }
+                            //Input OK sends requst to DB
                             else if (int.TryParse(hourInput, out int hours) || hourInput.Equals(string.Empty))
                             {
-                                bool success = DataAccess.ReportHours(persons[i].id, projects[j].id, hours);
-                                if (success)
+                                if (DataAccess.ReportHours(persons[i].id, projects[j].id, hours))
                                     Console.WriteLine("Your hours are registered");
                                 else
                                     Console.WriteLine("Something went wrong");
@@ -58,6 +66,63 @@
                     Console.WriteLine("Person not found, try again");
                 }
             }
+
+            /*
+            //Test 1 of only getting the person/project searched from the DB
+
+            if (DataAccess.TryLoadPerson(personName).Equals(personName))
+            {
+                Console.Write("Input project: ");
+                string? projectName = Console.ReadLine();
+                if (DataAccess.TryLoadProject(projectName))
+                {
+                    Console.Write("Input hours: ");
+                    string hourInput = Console.ReadLine();
+                    if (hourInput.Equals("0"))
+                    {
+                        Console.WriteLine("Cant report 0 hours");
+                    }
+                    else if (int.TryParse(hourInput, out int hours) || hourInput.Equals(string.Empty))
+                    {
+                        List<PersonModel> persons = DataAccess.LoadPerson(personName);
+                        List<ProjectModel> projects = DataAccess.LoadProject(projectName);
+                        if (DataAccess.ReportHours(persons[0].id, projects[0].id, hours))
+                            Console.WriteLine("Your hours are registered");
+                        else
+                            Console.WriteLine("Something went wrong");
+                    }
+                    else
+                        Console.WriteLine("Not a number, try again");
+                }
+                else
+                    Console.WriteLine("Project not found, try again");
+            }
+            else
+                Console.WriteLine("Person not found, try again");
+            */
+
+            /*
+            //Test 2 of only getting the person/project searched from the DB
+
+            Console.Write("Input project: ");
+            string? projectName = Console.ReadLine();
+            Console.Write("Input hours: ");
+            string hourInput = Console.ReadLine();
+            if (hourInput.Equals("0"))
+            {
+                Console.WriteLine("Cant report 0 hours");
+            }
+            else if (int.TryParse(hourInput, out int hours) || hourInput.Equals(string.Empty))
+            {
+                List<PersonModel> person = DataAccess.LoadPerson(personName);
+                List<ProjectModel> project = DataAccess.LoadProject(projectName);
+                if (DataAccess.ReportHours(persons[0].id, projects[0].id, hours))
+                    Console.WriteLine("Your hours are registered");
+                else
+                    Console.WriteLine("Something went wrong");
+            }
+            */
+
             EnterToContinue();
         }
 
@@ -71,12 +136,13 @@
             string? input = Console.ReadLine();
             if (StringInputValidator(input))
             {
-                bool success = DataAccess.CreateUser(input);
-                if (success)
+                if (DataAccess.CreateUser(input))
                     Console.WriteLine("New user was added");
                 else
-                    Console.WriteLine("Something went wrong");
+                    Console.WriteLine("User allready axists");
             }
+            else
+                Console.WriteLine("Invalid input, try again!");
             EnterToContinue();
         }
 
@@ -90,40 +156,100 @@
             string? input = Console.ReadLine();
             if (StringInputValidator(input))
             {
-                bool success = DataAccess.CreateProject(input);
-                if (success)
+                if (DataAccess.CreateProject(input))
                     Console.WriteLine($"New project was added");
                 else
-                    Console.WriteLine("Something went wrong");
+                    Console.WriteLine("project allready exists");
+            }
+            else
+                Console.WriteLine("Invalid input, try again!");
+            EnterToContinue();
+        }
+
+        internal static void ChangeUser()
+        {
+            Console.Clear();
+            Console.CursorVisible = true;
+            Console.WriteLine("Change User!\n");
+            Console.Write("Input old name of user: ");
+            string? oldName = Console.ReadLine();
+            List<PersonModel> persons = DataAccess.LoadPerson();
+            for (int i = 0; i < persons.Count; i++)
+            {
+                if (oldName.Equals(persons[i].person_name))
+                {
+                    Console.Write("Input new name of user: ");
+                    string? newName = Console.ReadLine();
+                    if (StringInputValidator(oldName) && StringInputValidator(newName))
+                    {
+                        if (DataAccess.ChangeUser(oldName, newName))
+                            Console.WriteLine("Username is updated");
+                        else
+                            Console.WriteLine("Something went wrong");
+                        i = persons.Count;
+                    }
+                    else
+                    {
+                        Console.WriteLine("Invalid input, try again!");
+                        EnterToContinue();
+                        return;
+                    }
+                }
+                else if (i == persons.Count - 1)
+                {
+                    Console.WriteLine("Could not find person");
+                }
             }
             EnterToContinue();
         }
 
-        internal static bool StringInputValidator(string input)
+        internal static void ChangeProject()
         {
-            if (input.Equals(string.Empty))
+            Console.Clear();
+            Console.CursorVisible = true;
+            Console.WriteLine("Change Project!\n");
+            Console.Write("Input old name of project: ");
+            string? oldName = Console.ReadLine();
+            List<ProjectModel> projects = DataAccess.LoadProject();
+            for (int i = 0; i < projects.Count - 1; i++)
             {
-                Console.WriteLine("You did not input any, try again!");
-                return false;
+                if (!oldName.Equals(projects[i].project_name))
+                {
+                    Console.Write("Input new name of project: ");
+                    string? newName = Console.ReadLine();
+                    if (StringInputValidator(oldName) && StringInputValidator(newName))
+                    {
+                        if (DataAccess.ChangeProject(oldName, newName))
+                            Console.WriteLine("Projectname is updated");
+                        else
+                            Console.WriteLine("Something went wrong");
+                        i = projects.Count;
+                    }
+                    else
+                    {
+                        Console.WriteLine("Invalid input, try again!");
+                        EnterToContinue();
+                        return;
+                    }
+                }
+                else if (i == projects.Count - 1)
+                {
+                    Console.WriteLine("Could not find project");
+                }
             }
-            else if (int.TryParse(input, out int number) || input.Contains(" "))
-            {
-                Console.WriteLine("Invalid input, try again!");
-                return false;
-            }
-            return true;
+            EnterToContinue();
         }
 
-        internal static bool IntInputValidator(string input)
+        internal static void ChangeRegisteredHours()
         {
-            if (!int.TryParse(input, out int number))
+
+        }
+
+        internal static bool StringInputValidator(string input)
+        {
+            if (input.Equals(string.Empty) || int.TryParse(input, out int number) || string.IsNullOrWhiteSpace(input))
             {
-                Console.WriteLine("You did not enter a number, try again!");
                 return false;
-            }
-            else if (input.Equals("0"))
-            {
-                Console.WriteLine("You entered 0 do you want to ");
             }
             return true;
         }
