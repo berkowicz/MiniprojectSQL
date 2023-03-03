@@ -42,6 +42,7 @@
                             //Input OK sends requst to DB
                             else if (int.TryParse(hourInput, out int hours) || hourInput.Equals(string.Empty) || hours > 24)
                             {
+                                //Check if DB accepts request
                                 if (DataAccess.ReportHours(persons[i].id, projects[j].id, hours))
                                     Console.WriteLine("Your hours are registered");
                                 else
@@ -128,16 +129,18 @@
             EnterToContinue();
         }
 
+        //Create new user
         internal static void CreateUser()
         {
-            //Creates new user
             Console.Clear();
             Console.CursorVisible = true;
             Console.WriteLine("Create New User!\n");
             Console.Write("Input name of user: ");
             string? input = Console.ReadLine();
+            //Validates string
             if (StringInputValidator(input))
             {
+                //Check if DB accepts request
                 if (DataAccess.CreateUser(input))
                     Console.WriteLine("New user was added");
                 else
@@ -148,6 +151,7 @@
             EnterToContinue();
         }
 
+        //Create new project
         internal static void CreateProject()
         {
             //Creates new project
@@ -156,8 +160,10 @@
             Console.WriteLine("Create New Project!\n");
             Console.Write("Input name of Project: ");
             string? input = Console.ReadLine();
+            //Validates string
             if (StringInputValidator(input))
             {
+                //Check if DB accepts request
                 if (DataAccess.CreateProject(input))
                     Console.WriteLine($"New project was added");
                 else
@@ -168,6 +174,7 @@
             EnterToContinue();
         }
 
+        //Change username
         internal static void ChangeUser()
         {
             Console.Clear();
@@ -176,14 +183,18 @@
             Console.Write("Input old name of user: ");
             string? oldName = Console.ReadLine();
             List<PersonModel> persons = DataAccess.LoadPerson();
+            //Loops throught every person
             for (int i = 0; i < persons.Count; i++)
             {
+                //Looking for match in input and persons in list
                 if (oldName.Equals(persons[i].person_name))
                 {
                     Console.Write("Input new name of user: ");
                     string? newName = Console.ReadLine();
+                    //Validates input
                     if (StringInputValidator(oldName) && StringInputValidator(newName))
                     {
+                        //Check if DB accepts request
                         if (DataAccess.ChangeUser(oldName, newName))
                             Console.WriteLine("Username is updated");
                         else
@@ -205,6 +216,7 @@
             EnterToContinue();
         }
 
+        //Change projectname
         internal static void ChangeProject()
         {
             Console.Clear();
@@ -213,14 +225,18 @@
             Console.Write("Input old name of project: ");
             string? oldName = Console.ReadLine();
             List<ProjectModel> projects = DataAccess.LoadProject();
+            //Loops throught every project
             for (int i = 0; i < projects.Count; i++)
             {
+                // Looking for match in input and project in list
                 if (oldName.Equals(projects[i].project_name))
                 {
                     Console.Write("Input new name of project: ");
                     string? newName = Console.ReadLine();
+                    //Validates input
                     if (StringInputValidator(oldName) && StringInputValidator(newName))
                     {
+                        //Check if DB accepts request
                         if (DataAccess.ChangeProject(oldName, newName))
                             Console.WriteLine("Projectname is updated");
                         else
@@ -242,12 +258,14 @@
             EnterToContinue();
         }
 
+        //Update reported hours
         internal static void ChangeRegisteredHours()
         {
             Console.Clear();
             Console.CursorVisible = true;
             Console.WriteLine("Change hour input!\n");
             Console.Write("Input the day(number) you want to update: ");
+            //Validates input
             if (!int.TryParse(Console.ReadLine(), out int day))
             {
                 Console.WriteLine("Invalid input, try again!");
@@ -255,18 +273,22 @@
                 return;
             }
             List<ProjectPersonModel> projectPerson = DataAccess.LoadProjectPerson();
+            //Loops throught every reported hour
             for (int i = 0; i < projectPerson.Count; i++)
             {
+                // Looking for match in input and projectPerson in list
                 if (day == projectPerson[i].id)
                 {
                     Console.WriteLine($"You have {projectPerson[i].hours} hours registred on day {projectPerson[i].id}");
                     Console.Write("Input new value: ");
+                    //Validates input
                     if (!int.TryParse(Console.ReadLine(), out int hours) || hours > 24)
                     {
                         Console.WriteLine("Invalid input, try again!");
                         EnterToContinue();
                         return;
                     }
+                    //Check if DB accepts request
                     if (DataAccess.UpdateProjectPerson(day, hours))
                         Console.WriteLine($"Hours is updated to {hours} hours");
                     else
@@ -279,9 +301,10 @@
             EnterToContinue();
         }
 
+        //Validator for strings
         internal static bool StringInputValidator(string input)
         {
-            if (input.Equals(string.Empty) || int.TryParse(input, out int number) || string.IsNullOrWhiteSpace(input))
+            if (int.TryParse(input, out int number) || string.IsNullOrWhiteSpace(input))
             {
                 return false;
             }

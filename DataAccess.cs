@@ -7,6 +7,37 @@ namespace miniprojectSQL
 {
     internal class DataAccess
     {
+        //Get data from dabe_person
+        internal static List<PersonModel> LoadPerson()
+        {
+            using (IDbConnection cnn = new NpgsqlConnection(LoadConnectionString()))
+            {
+                var output = cnn.Query<PersonModel>($"SELECT * FROM dabe_person", new DynamicParameters());
+                return output.ToList();
+            }
+        }
+
+        //Get data from dabe_project
+        internal static List<ProjectModel> LoadProject()
+        {
+            using (IDbConnection cnn = new NpgsqlConnection(LoadConnectionString()))
+            {
+                var output = cnn.Query<ProjectModel>("SELECT * FROM dabe_project", new DynamicParameters());
+                return output.ToList();
+            }
+        }
+
+        //Get data from dabe_project_person
+        internal static List<ProjectPersonModel> LoadProjectPerson()
+        {
+            using (IDbConnection cnn = new NpgsqlConnection(LoadConnectionString()))
+            {
+                var output = cnn.Query<ProjectPersonModel>($"SELECT * FROM dabe_project_person", new DynamicParameters());
+                return output.ToList();
+            }
+        }
+
+        //Sends request to add new user
         internal static bool CreateUser(string name)
         {
             using (IDbConnection cnn = new NpgsqlConnection(LoadConnectionString()))
@@ -23,6 +54,8 @@ namespace miniprojectSQL
                 return true;
             }
         }
+
+        //Sends request to add new project
         internal static bool CreateProject(string projectName)
         {
             using (IDbConnection cnn = new NpgsqlConnection(LoadConnectionString()))
@@ -40,7 +73,7 @@ namespace miniprojectSQL
             }
         }
 
-
+        //Sends request to add new register.
         internal static bool ReportHours(int name_id, int project_id, int hour)
         {
             if (hour == 0)
@@ -62,32 +95,6 @@ namespace miniprojectSQL
             }
         }
 
-        internal static List<PersonModel> LoadPerson()
-        {
-            using (IDbConnection cnn = new NpgsqlConnection(LoadConnectionString()))
-            {
-                var output = cnn.Query<PersonModel>($"SELECT * FROM dabe_person", new DynamicParameters());
-                return output.ToList();
-            }
-        }
-
-        internal static List<ProjectModel> LoadProject()
-        {
-            using (IDbConnection cnn = new NpgsqlConnection(LoadConnectionString()))
-            {
-                var output = cnn.Query<ProjectModel>("SELECT * FROM dabe_project", new DynamicParameters());
-                return output.ToList();
-            }
-        }
-
-        internal static List<ProjectPersonModel> LoadProjectPerson()
-        {
-            using (IDbConnection cnn = new NpgsqlConnection(LoadConnectionString()))
-            {
-                var output = cnn.Query<ProjectPersonModel>($"SELECT * FROM dabe_project_person", new DynamicParameters());
-                return output.ToList();
-            }
-        }
 
         internal static bool UpdateProjectPerson(int day, int hours)
         {
