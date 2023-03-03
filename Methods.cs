@@ -32,7 +32,7 @@
                         {
                             Console.WriteLine("No input equals 8 hours");
                             Console.Write("Input hours: ");
-                            string hourInput = Console.ReadLine();
+                            string? hourInput = Console.ReadLine();
                             //Validates input
                             if (hourInput.Equals("0"))
                             {
@@ -40,7 +40,7 @@
                                 i = persons.Count; j = projects.Count;
                             }
                             //Input OK sends requst to DB
-                            else if (int.TryParse(hourInput, out int hours) || hourInput.Equals(string.Empty))
+                            else if (int.TryParse(hourInput, out int hours) || hourInput.Equals(string.Empty) || hours > 24)
                             {
                                 if (DataAccess.ReportHours(persons[i].id, projects[j].id, hours))
                                     Console.WriteLine("Your hours are registered");
@@ -69,6 +69,7 @@
 
             /*
             //Test 1 of only getting the person/project searched from the DB
+            //Cant get TyCatch to work in getting single row in DataAccess.
 
             if (DataAccess.TryLoadPerson(personName).Equals(personName))
             {
@@ -77,7 +78,7 @@
                 if (DataAccess.TryLoadProject(projectName))
                 {
                     Console.Write("Input hours: ");
-                    string hourInput = Console.ReadLine();
+                    string? hourInput = Console.ReadLine();
                     if (hourInput.Equals("0"))
                     {
                         Console.WriteLine("Cant report 0 hours");
@@ -103,11 +104,12 @@
 
             /*
             //Test 2 of only getting the person/project searched from the DB
+            //Cant get TyCatch to work in getting single row in DataAccess.
 
             Console.Write("Input project: ");
             string? projectName = Console.ReadLine();
             Console.Write("Input hours: ");
-            string hourInput = Console.ReadLine();
+            string? hourInput = Console.ReadLine();
             if (hourInput.Equals("0"))
             {
                 Console.WriteLine("Cant report 0 hours");
@@ -211,9 +213,9 @@
             Console.Write("Input old name of project: ");
             string? oldName = Console.ReadLine();
             List<ProjectModel> projects = DataAccess.LoadProject();
-            for (int i = 0; i < projects.Count - 1; i++)
+            for (int i = 0; i < projects.Count; i++)
             {
-                if (!oldName.Equals(projects[i].project_name))
+                if (oldName.Equals(projects[i].project_name))
                 {
                     Console.Write("Input new name of project: ");
                     string? newName = Console.ReadLine();
@@ -242,7 +244,39 @@
 
         internal static void ChangeRegisteredHours()
         {
-
+            Console.Clear();
+            Console.CursorVisible = true;
+            Console.WriteLine("Change hour input!\n");
+            Console.Write("Input the day(number) you want to update: ");
+            if (!int.TryParse(Console.ReadLine(), out int day))
+            {
+                Console.WriteLine("Invalid input, try again!");
+                EnterToContinue();
+                return;
+            }
+            List<ProjectPersonModel> projectPerson = DataAccess.LoadProjectPerson();
+            for (int i = 0; i < projectPerson.Count; i++)
+            {
+                if (day == projectPerson[i].id)
+                {
+                    Console.WriteLine($"You have {projectPerson[i].hours} hours registred on day {projectPerson[i].id}");
+                    Console.Write("Input new value: ");
+                    if (!int.TryParse(Console.ReadLine(), out int hours) || hours > 24)
+                    {
+                        Console.WriteLine("Invalid input, try again!");
+                        EnterToContinue();
+                        return;
+                    }
+                    if (DataAccess.UpdateProjectPerson(day, hours))
+                        Console.WriteLine($"Hours is updated to {hours} hours");
+                    else
+                        Console.WriteLine("Something went wrong");
+                    i = projectPerson.Count;
+                }
+                else if (i == projectPerson.Count - 1)
+                    Console.WriteLine("Registration not found, try again");
+            }
+            EnterToContinue();
         }
 
         internal static bool StringInputValidator(string input)
