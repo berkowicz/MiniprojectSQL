@@ -16,20 +16,19 @@
             _selectedIndex = 0;
         }
 
-        // Method to print the menu to the console
+        // Prints menu
         public void PrintMenu()
         {
-            // Clear the console before printing the menu
             Console.Clear();
             Console.CursorVisible = false;
-            // Print a message to prompt the user to select an option
-            Console.WriteLine("Please select an option:");
+            // Print a message above the menu options
+            Console.WriteLine("Use the arrows to navigate");
             // Iterate through the menu items array
             for (int i = 0; i < _menuItems.Length; i++)
             {
                 // Set the console color to green for the selected menu item and white for the rest
                 Console.ForegroundColor = i == _selectedIndex ? ConsoleColor.Green : ConsoleColor.White;
-                // Print the menu item with a arrow symbol in front of the selected item
+                // Prints the menu item, and different for selected and non selected
                 Console.WriteLine(i == _selectedIndex ? $"   {_menuItems[i]}  " : $"  {_menuItems[i]}  ");
             }
             // Reset the console color to its default value
@@ -43,15 +42,14 @@
             set => _selectedIndex = (value % _menuItems.Length + _menuItems.Length) % _menuItems.Length;
         }
 
-        // Method to handle user input and navigate the menu
-        // Method to handle user input and navigate the menu
+        // Handles user input to navigate the menu
         public int UseMenu()
         {
             // Declare a variable to store the user's input
             ConsoleKey userInput;
             do
             {
-                //Prints menu so its not waiting for input to print when goign back a step.
+                //Prints menu so its not waiting for input to print when going back a menu step.
                 PrintMenu();
                 // Read the user's input
                 userInput = Console.ReadKey(true).Key;
@@ -82,8 +80,6 @@
                         // Return the selected index
                         return index;
                 }
-                // Reprint the menu
-                PrintMenu();
             } while (true);
         }
     }
